@@ -1,0 +1,154 @@
+:root {
+  --bg: #141d2e;
+  --bg-soft: #283a56;
+  --panel: #1d2b41;
+  --panel-2: #243350;
+  --border: #334766;
+  --text: #eef3fa;
+  --text-2: #96a4b8;
+  --gold: #d4a643;
+  --gold-soft: #e8c874;
+  --profit: #ff4d4f;
+  --loss: #00b578;
+}
+
+/* 科技风主题 */
+html.theme-tech {
+  --bg: #101b2a;
+  --bg-soft: #1d3550;
+  --panel: #17283f;
+  --panel-2: #1e314c;
+  --border: #2c4a6c;
+  --text: #e2effc;
+  --text-2: #8aa5c0;
+  --gold: #38bdf8;
+  --gold-soft: #7dd3fc;
+  --profit: #f87171;
+  --loss: #34d399;
+}
+
+/* 奢华风主题 */
+html.theme-luxury {
+  --bg: #241a10;
+  --bg-soft: #3a2a18;
+  --panel: #2f2317;
+  --panel-2: #382a1c;
+  --border: #5a4528;
+  --text: #f9f0e2;
+  --text-2: #c2b08d;
+  --gold: #e8c874;
+  --gold-soft: #f5e6b0;
+  --profit: #ff6b6b;
+  --loss: #4ade80;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 80% -10%, var(--bg-soft) 0%, var(--bg) 60%);
+  color: var(--text);
+  font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  font-size: 14px;
+}
+
+/* 盈亏颜色 */
+.profit {
+  color: var(--profit) !important;
+}
+.loss {
+  color: var(--loss) !important;
+}
+.flat {
+  color: var(--text-2) !important;
+}
+
+/* 卡片面板 */
+.panel {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* 覆盖 Element Plus 卡片 */
+.el-card {
+  --el-card-bg-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* 表格 */
+.el-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(255, 255, 255, 0.03);
+  --el-table-border-color: var(--border);
+  --el-table-row-hover-bg-color: rgba(212, 166, 67, 0.06);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3a58;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 通用数字字体（等宽，便于对齐金额） */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', 'Roboto Mono', Consolas, monospace;
+}
+
+/* 压缩表格单元格内边距与字号，让更多列可见 */
+.el-table {
+  font-size: 12px;
+}
+.el-table .cell {
+  padding: 0 2px;
+  white-space: nowrap;
+}
+
+/* 统计面板时间选择器撑满宽度 */
+.el-date-editor--daterange.stats-date {
+  width: 100% !important;
+}
+
+/* 新增/编辑弹窗：浅色系 */
+.el-dialog {
+  --el-dialog-bg-color: #f4f6fa;
+  --el-bg-color: #f4f6fa;
+  --el-text-color-primary: #1f2d3d;
+  --el-text-color-regular: #37485e;
+  --el-text-color-secondary: #6b7a90;
+  --el-border-color: #d6dde7;
+  --el-border-color-light: #e3e9f1;
+  --el-border-color-lighter: #edf1f6;
+  --el-fill-color-blank: #ffffff;
+  --el-fill-color-light: #f0f3f8;
+  --el-input-bg-color: #ffffff;
+  --el-input-border-color: #d6dde7;
+  --el-button-bg-color: #ffffff;
+  --el-button-text-color: #37485e;
+  --el-button-border-color: #d6dde7;
+  --el-button-hover-bg-color: #f0f4fa;
+  --el-button-hover-text-color: #2b6cb0;
+  --el-button-hover-border-color: #b9cfe8;
+  --el-disabled-bg-color: #f0f3f8;
+  --el-form-item-label-color: #37485e;
+}
