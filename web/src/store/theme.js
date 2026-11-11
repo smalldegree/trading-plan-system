@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 
 export const THEMES = [
-  { key: 'finance', label: '金融风' },
   { key: 'tech', label: '科技风' },
+  { key: 'finance', label: '简易风' },
   { key: 'luxury', label: '奢华风' },
 ];
 

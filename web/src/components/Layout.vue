@@ -81,7 +81,7 @@ async function onLogout() {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
+  background: linear-gradient(180deg, #f1ebe0 0%, #e9e0d1 100%);
   border-right: 1px solid var(--border);
   transition: width 0.2s ease;
 }

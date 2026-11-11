@@ -1,21 +1,21 @@
 :root {
-  /* 金融风（浅色） */
-  --bg: #f4f6fa;
-  --bg-soft: #e6ecf5;
-  --panel: #ffffff;
-  --panel-2: #f8f9fc;
-  --border: #dfe6ef;
-  --text: #1f2d3d;
-  --text-2: #6b7a90;
-  --gold: #d4a643;
-  --gold-soft: #a97c2a;
+  /* 简易风 */
+  --bg: #ece4d6;
+  --bg-soft: #e0d4be;
+  --panel: #f6f1e7;
+  --panel-2: #faf6ee;
+  --border: #d9cdb8;
+  --text: #3c352a;
+  --text-2: #8a7d68;
+  --gold: #c0903a;
+  --gold-soft: #9a7126;
   --profit: #ff4d4f;
   --loss: #00b578;
-  --hover-bg: rgba(0, 0, 0, 0.04);
-  --table-header-bg: rgba(0, 0, 0, 0.035);
-  --chart-axis: #c4cfdd;
-  --chart-text: #5a6b85;
-  --chart-split: rgba(90, 107, 133, 0.18);
+  --hover-bg: rgba(60, 53, 42, 0.06);
+  --table-header-bg: rgba(60, 53, 42, 0.05);
+  --chart-axis: #cfc3ae;
+  --chart-text: #837660;
+  --chart-split: rgba(131, 118, 96, 0.2);
 }
 
 /* 科技风主题 */
