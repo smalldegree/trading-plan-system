@@ -106,6 +106,115 @@ cd server
 npm start          # 使用 node 直接启动
 ```
 
+## 部署（Ubuntu 24.04 + Nginx + MySQL）
+
+以下以 Ubuntu 24.04 为例，将系统部署到生产环境。
+
+### 1. 安装依赖
+
+```bash
+# Node.js 20 LTS
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Nginx
+sudo apt-get install -y nginx
+
+# MySQL
+sudo apt-get install -y mysql-server
+
+# PM2（Node 进程守护）
+sudo npm install -g pm2
+```
+
+### 2. 准备 MySQL 数据库
+
+```bash
+sudo mysql -e "CREATE DATABASE trading_plan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER 'trading'@'localhost' IDENTIFIED BY '改成你的密码';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON trading_plan.* TO 'trading'@'localhost';"
+sudo mysql -e "FLUSH PRIVILEGES;"
+```
+
+### 3. 部署后端
+
+```bash
+cd /opt/trading-plan-system/server
+npm install --omit=dev
+npm install mysql2        # MySQL 驱动
+
+# 创建环境变量配置
+cat > .env <<'EOF'
+DB_CLIENT=mysql2
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=trading
+DB_PASSWORD=改成你的密码
+DB_NAME=trading_plan
+JWT_SECRET=请改成随机长字符串
+PORT=3000
+EOF
+
+# 启动（启动时会自动执行数据库迁移）
+pm2 start src/server.js --name trading-plan-server
+pm2 save
+pm2 startup
+```
+
+### 4. 部署前端
+
+```bash
+cd /opt/trading-plan-system/web
+npm install
+npm run build        # 产物输出到 web/dist
+```
+
+### 5. 配置 Nginx
+
+创建 `/etc/nginx/sites-available/trading-plan`：
+
+```nginx
+server {
+    listen 80;
+    server_name 你的域名或IP;
+
+    # 前端静态资源
+    root /opt/trading-plan-system/web/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;   # 支持前端路由
+    }
+
+    # 后端 API 反向代理
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+启用配置：
+
+```bash
+sudo ln -s /etc/nginx/sites-available/trading-plan /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### 6. 验证与更新
+
+浏览器访问 `http://你的域名或IP`，注册账号后即可使用。若前端路由刷新出现 404，确认 Nginx 的 `try_files` 配置已启用。
+
+后续更新代码：
+
+```bash
+git pull
+cd server && npm install && pm2 restart trading-plan-server
+cd web && npm install && npm run build
+```
+
 ## 配置（后端环境变量）
 
 后端通过 `.env` 文件或环境变量配置（`server/src/config.js`）：
