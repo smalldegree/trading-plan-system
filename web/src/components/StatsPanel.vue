@@ -57,11 +57,54 @@
             <span class="loss num">{{ fmtMoney(summary.loss_amount) }}</span>
           </div>
         </div>
+        <div class="stat-card">
+          <div class="stat-label">总笔数</div>
+          <div class="stat-value num">{{ summary.total_trades }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">平均收益率</div>
+          <div class="stat-value num" :class="pnlClass(summary.avg_return_rate)">
+            {{ fmtPercent(summary.avg_return_rate) }}
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">盈亏比</div>
+          <div class="stat-value num">{{ summary.profit_loss_ratio || '--' }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">平均持仓</div>
+          <div class="stat-value num">{{ summary.avg_holding_days }}天</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">总买入金额</div>
+          <div class="stat-value num">{{ fmtMoney(summary.total_buy_amount) }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">总卖出金额</div>
+          <div class="stat-value num">{{ fmtMoney(summary.total_sell_amount) }}</div>
+        </div>
+        <div class="stat-card hold-card">
+          <div class="stat-label">持仓金额</div>
+          <div class="stat-value num">{{ fmtMoney(summary.holding_amount) }}</div>
+        </div>
       </div>
 
       <div class="chart-block">
         <div class="chart-title">收益金额曲线</div>
         <div ref="chartRef" class="chart"></div>
+      </div>
+
+      <div v-if="factorList.length" class="factor-block">
+        <div class="factor-title">策略因子胜率</div>
+        <div v-for="g in factorList" :key="g.key" class="factor-group">
+          <div class="factor-name">{{ g.label }}</div>
+          <div v-for="item in g.items" :key="item.value" class="factor-row">
+            <span class="f-value">{{ item.value }}</span>
+            <span class="f-count num">{{ item.count }}笔</span>
+            <span class="f-win num">{{ item.win_rate }}%</span>
+            <span class="f-avg num" :class="pnlClass(item.avg_return_rate)">{{ fmtPercent(item.avg_return_rate) }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="top-block">
@@ -96,7 +139,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import api from '../api';
@@ -117,8 +160,12 @@ const summary = reactive({
   loss_amount: 0,
   total_pnl: 0,
   total_buy_amount: 0,
+  total_sell_amount: 0,
+  holding_amount: 0,
   total_return_rate: 0,
   avg_return_rate: 0,
+  avg_holding_days: 0,
+  profit_loss_ratio: 0,
   win_rate: 0,
 });
 const topProfit = ref([]);
@@ -127,6 +174,26 @@ const chartRef = ref(null);
 let chart = null;
 const lastCurve = ref([]);
 const themeStore = useThemeStore();
+const factors = ref({});
+
+const factorDefs = [
+  { key: 'score', label: '优选打分' },
+  { key: 'point', label: '取点' },
+  { key: 'strong_reversal', label: '强扭转' },
+  { key: 'position_preferred', label: '位置优选' },
+  { key: 'pullback_sufficient', label: '回踩充分' },
+  { key: 'trend', label: '走势' },
+  { key: 'reason', label: '原因' },
+];
+const factorList = computed(() =>
+  factorDefs
+    .map((d) => ({
+      key: d.key,
+      label: d.label,
+      items: (factors.value[d.key] || []).filter((x) => x.count > 0),
+    }))
+    .filter((g) => g.items.length > 0)
+);
 
 const shortcuts = [
   {
@@ -170,6 +237,7 @@ async function load() {
     Object.assign(summary, data.summary);
     topProfit.value = data.top_profit || [];
     topLoss.value = data.top_loss || [];
+    factors.value = data.factors || {};
     lastCurve.value = data.curve || [];
     renderChart(lastCurve.value);
   } catch (e) {
@@ -328,6 +396,9 @@ defineExpose({ reload: load });
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+.hold-card {
+  grid-column: 1 / -1;
+}
 .stat-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
@@ -364,6 +435,55 @@ defineExpose({ reload: load });
 .chart {
   height: 220px;
   width: 100%;
+}
+
+.factor-block {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.factor-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.factor-group {
+  margin-bottom: 10px;
+}
+.factor-group:last-child {
+  margin-bottom: 0;
+}
+.factor-name {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 4px;
+}
+.factor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.f-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.f-count {
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+.f-win {
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.f-avg {
+  width: 62px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .top-block {

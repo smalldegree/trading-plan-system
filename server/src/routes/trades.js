@@ -58,6 +58,41 @@ function toNum(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+// 按某字段分组统计：笔数、胜率、平均收益率、总盈亏
+function factorStats(rows, key) {
+  const map = new Map();
+  for (const r of rows) {
+    const v = r[key] == null || r[key] === '' ? '未填写' : String(r[key]);
+    if (!map.has(v)) {
+      map.set(v, { count: 0, win: 0, pnl: 0, rate_sum: 0, rate_count: 0 });
+    }
+    const s = map.get(v);
+    const pnl = Number(r.pnl) || 0;
+    s.count += 1;
+    if (pnl > 0) s.win += 1;
+    s.pnl += pnl;
+    if (r.return_rate != null) {
+      s.rate_sum += Number(r.return_rate) || 0;
+      s.rate_count += 1;
+    }
+  }
+  return Array.from(map.entries()).map(([value, s]) => ({
+    value,
+    count: s.count,
+    win_rate: s.count > 0 ? round2((s.win / s.count) * 100) : 0,
+    avg_return_rate: s.rate_count > 0 ? round2(s.rate_sum / s.rate_count) : 0,
+    total_pnl: round2(s.pnl),
+  }));
+}
+
+// 持仓天数（卖出日 - 买入日；持有中按今天计）
+function holdingDays(r) {
+  const start = r.trade_date ? new Date(r.trade_date) : null;
+  const end = r.sell_date ? new Date(r.sell_date) : new Date();
+  if (!start || isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+  return Math.max(0, Math.round((end.getTime() - start.getTime()) / 86400000));
+}
+
 // 统一清洗并自动计算买入金额 / 盈亏 / 收益率 / 优选打分
 function normalize(body) {
   const yes = (v) => (v === '是' ? '是' : '否');
@@ -154,8 +189,12 @@ router.get('/stats', auth, async (req, res, next) => {
     let loss_amount = 0;
     let total_pnl = 0;
     let total_buy = 0;
+    let total_sell = 0;
+    let holding_amount = 0;
     let sum_return_rate = 0;
     let counted_rate = 0;
+    let holding_sum = 0;
+    let holding_count = 0;
 
     const dailyMap = new Map();
 
@@ -163,6 +202,10 @@ router.get('/stats', auth, async (req, res, next) => {
       const pnl = Number(r.pnl) || 0;
       total_pnl += pnl;
       total_buy += Number(r.buy_amount) || 0;
+      total_sell += Number(r.sell_amount) || 0;
+      if (r.sell_amount == null) {
+        holding_amount += Number(r.buy_amount) || 0;
+      }
       if (r.return_rate != null) {
         sum_return_rate += Number(r.return_rate) || 0;
         counted_rate += 1;
@@ -173,6 +216,11 @@ router.get('/stats', auth, async (req, res, next) => {
       } else if (pnl < 0) {
         loss_count += 1;
         loss_amount += Math.abs(pnl);
+      }
+      const hd = holdingDays(r);
+      if (hd != null) {
+        holding_sum += hd;
+        holding_count += 1;
       }
       const day = r.trade_date;
       dailyMap.set(day, (dailyMap.get(day) || 0) + pnl);
@@ -206,6 +254,24 @@ router.get('/stats', auth, async (req, res, next) => {
         ? round2((win_count / (win_count + loss_count)) * 100)
         : 0;
 
+    // 交易质量：平均持仓天数、盈亏比（平均盈利额 / 平均亏损额）
+    const avg_holding_days =
+      holding_count > 0 ? round2(holding_sum / holding_count) : 0;
+    const avg_win = win_count > 0 ? win_amount / win_count : 0;
+    const avg_loss = loss_count > 0 ? loss_amount / loss_count : 0;
+    const profit_loss_ratio = avg_loss > 0 ? round2(avg_win / avg_loss) : 0;
+
+    // 策略因子胜率分析
+    const factors = {
+      score: factorStats(rows, 'score'),
+      point: factorStats(rows, 'point'),
+      strong_reversal: factorStats(rows, 'strong_reversal'),
+      position_preferred: factorStats(rows, 'position_preferred'),
+      pullback_sufficient: factorStats(rows, 'pullback_sufficient'),
+      trend: factorStats(rows, 'trend'),
+      reason: factorStats(rows, 'reason'),
+    };
+
     return res.json({
       summary: {
         total_trades: rows.length,
@@ -215,11 +281,16 @@ router.get('/stats', auth, async (req, res, next) => {
         loss_amount: round2(loss_amount),
         total_pnl: round2(total_pnl),
         total_buy_amount: round2(total_buy),
+        total_sell_amount: round2(total_sell),
+        holding_amount: round2(holding_amount),
         total_return_rate,
         avg_return_rate,
+        avg_holding_days,
+        profit_loss_ratio,
         win_rate,
       },
       curve,
+      factors,
       top_profit,
       top_loss,
     });
