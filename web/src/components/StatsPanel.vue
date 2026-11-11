@@ -96,11 +96,12 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import api from '../api';
 import { fmtMoney, fmtPercent, pnlClass } from '../utils/format';
+import { useThemeStore } from '../store/theme';
 
 const props = defineProps({
   collapsed: { type: Boolean, default: false },
@@ -124,6 +125,8 @@ const topProfit = ref([]);
 const topLoss = ref([]);
 const chartRef = ref(null);
 let chart = null;
+const lastCurve = ref([]);
+const themeStore = useThemeStore();
 
 const shortcuts = [
   {
@@ -167,10 +170,15 @@ async function load() {
     Object.assign(summary, data.summary);
     topProfit.value = data.top_profit || [];
     topLoss.value = data.top_loss || [];
-    renderChart(data.curve || []);
+    lastCurve.value = data.curve || [];
+    renderChart(lastCurve.value);
   } catch (e) {
     // 错误提示由拦截器统一处理
   }
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function renderChart(curve) {
@@ -178,12 +186,15 @@ function renderChart(curve) {
   const dates = curve.map((c) => c.date);
   const dailies = curve.map((c) => c.pnl);
   const cumulatives = curve.map((c) => c.cumulative);
+  const chartText = cssVar('--chart-text') || '#8b99b0';
+  const chartAxis = cssVar('--chart-axis') || '#2a3a58';
+  const chartSplit = cssVar('--chart-split') || 'rgba(42,58,88,0.45)';
   chart.setOption({
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis' },
     legend: {
       data: ['当日盈亏', '累计盈亏'],
-      textStyle: { color: '#8b99b0' },
+      textStyle: { color: chartText },
       top: 0,
       right: 0,
     },
@@ -191,13 +202,13 @@ function renderChart(curve) {
     xAxis: {
       type: 'category',
       data: dates,
-      axisLine: { lineStyle: { color: '#2a3a58' } },
-      axisLabel: { color: '#8b99b0' },
+      axisLine: { lineStyle: { color: chartAxis } },
+      axisLabel: { color: chartText },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: 'rgba(42,58,88,0.45)' } },
-      axisLabel: { color: '#8b99b0' },
+      splitLine: { lineStyle: { color: chartSplit } },
+      axisLabel: { color: chartText },
     },
     series: [
       {
@@ -229,6 +240,13 @@ function renderChart(curve) {
     ],
   });
 }
+
+watch(
+  () => themeStore.current,
+  () => {
+    if (chart) renderChart(lastCurve.value);
+  }
+);
 
 function onResize() {
   if (chart) chart.resize();

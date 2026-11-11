@@ -64,10 +64,10 @@
           style="width: 100%"
           :default-sort="{ prop: 'trade_date', order: 'ascending' }"
         >
-          <el-table-column type="index" label="序号" width="36" fixed="left" align="center" />
-          <el-table-column prop="stock_name" label="公司" width="60" fixed="left" show-overflow-tooltip />
-          <el-table-column prop="stock_code" label="代码" min-width="54" sortable />
-          <el-table-column prop="point" label="取点" min-width="42" align="center">
+          <el-table-column type="index" label="序号" width="50" fixed="left" align="center" />
+          <el-table-column prop="stock_name" label="公司" width="80" fixed="left" show-overflow-tooltip />
+          <el-table-column prop="stock_code" label="代码" min-width="40" sortable />
+          <el-table-column prop="point" label="取点" min-width="22" align="center">
             <template #default="{ row }">
               <span v-if="row.point" :class="row.point === '强势' ? 'point-strong' : 'point-weak'">{{ row.point }}</span>
               <span v-else>--</span>
@@ -79,21 +79,21 @@
               <el-icon v-else class="no-icon"><Close /></el-icon>
             </template>
           </el-table-column>
-          <el-table-column prop="position_preferred" label="位置优选" min-width="54" align="center">
+          <el-table-column prop="position_preferred" label="位置优选" min-width="40" align="center">
             <template #default="{ row }">
               <el-icon v-if="row.position_preferred === '是'" class="yes-icon"><Check /></el-icon>
               <el-icon v-else class="no-icon"><Close /></el-icon>
             </template>
           </el-table-column>
-          <el-table-column prop="pullback_sufficient" label="回踩充分" min-width="54" align="center">
+          <el-table-column prop="pullback_sufficient" label="回踩充分" min-width="50" align="center">
             <template #default="{ row }">
               <el-icon v-if="row.pullback_sufficient === '是'" class="yes-icon"><Check /></el-icon>
               <el-icon v-else class="no-icon"><Close /></el-icon>
             </template>
           </el-table-column>
-          <el-table-column prop="score" label="优选打分" min-width="66" align="center" sortable :sort-method="sortByScore" />
-          <el-table-column prop="trade_date" label="买入日期" min-width="72" sortable />
-          <el-table-column label="买入价格" min-width="56" align="right">
+          <el-table-column prop="score" label="优选打分" min-width="60" align="center" sortable :sort-method="sortByScore" />
+          <el-table-column prop="trade_date" label="买入日期" min-width="55" sortable />
+          <el-table-column label="买入价格" min-width="46" align="right">
             <template #default="{ row }">
               <span class="num">{{ fmtPlainMoney(row.price) }}</span>
             </template>
@@ -103,50 +103,50 @@
               <span class="num">{{ row.shares ?? '--' }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="买入金额" min-width="68" align="right">
+          <el-table-column label="买入金额" min-width="58" align="right">
             <template #default="{ row }">
               <span class="num">{{ fmtPlainMoney(row.buy_amount) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="sell_date" label="卖出日期" min-width="72" />
-          <el-table-column label="卖出价格" min-width="60" align="right">
+          <el-table-column prop="sell_date" label="卖出日期" min-width="72" align="center"/>
+          <el-table-column label="卖出价格" min-width="40" align="right">
             <template #default="{ row }">
               <span class="num">{{ fmtPlainMoney(row.sell_price) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="卖出股数" min-width="52" align="right">
+          <el-table-column label="卖出股数" min-width="50" align="right">
             <template #default="{ row }">
               <span class="num">{{ row.sell_shares ?? '--' }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="卖出金额" min-width="68" align="right">
+          <el-table-column label="卖出金额" min-width="70" align="right">
             <template #default="{ row }">
               <span class="num">{{ fmtPlainMoney(row.sell_amount) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="trend" label="走势" min-width="72" show-overflow-tooltip>
+          <el-table-column prop="trend" label="走势" min-width="60" show-overflow-tooltip align="center">
             <template #default="{ row }">
               <span v-if="row.trend" :class="trendClass(row.trend)">{{ row.trend }}</span>
               <span v-else>--</span>
             </template>
           </el-table-column>
-          <el-table-column prop="reason" label="原因" min-width="40" align="center">
+          <el-table-column prop="reason" label="原因" min-width="30" align="center">
             <template #default="{ row }">
               <span v-if="row.reason" :class="row.reason === '止盈' ? 'reason-red' : 'reason-green'">{{ row.reason }}</span>
               <span v-else>--</span>
             </template>
           </el-table-column>
-          <el-table-column prop="return_rate" label="收益率" min-width="56" align="right" sortable>
+          <el-table-column prop="return_rate" label="收益率" min-width="60" align="center" sortable>
             <template #default="{ row }">
               <span class="num" :class="pnlClass(row.return_rate)">{{ fmtPercent(row.return_rate) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="pnl" label="盈亏金额" min-width="68" align="right" sortable>
+          <el-table-column prop="pnl" label="盈亏金额" min-width="60" align="center" sortable>
             <template #default="{ row }">
               <span class="num" :class="pnlClass(row.pnl)">{{ fmtMoney(row.pnl) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="summary" label="总结" min-width="72" show-overflow-tooltip />
+          <el-table-column prop="summary" label="总结" min-width="70" show-overflow-tooltip />
           <el-table-column label="操作" width="90" fixed="right" align="center">
             <template #default="{ row }">
               <el-button link type="primary" @click="openEdit(row)">编辑</el-button>

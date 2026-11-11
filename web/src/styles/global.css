@@ -1,15 +1,21 @@
 :root {
-  --bg: #141d2e;
-  --bg-soft: #283a56;
-  --panel: #1d2b41;
-  --panel-2: #243350;
-  --border: #334766;
-  --text: #eef3fa;
-  --text-2: #96a4b8;
+  /* 金融风（浅色） */
+  --bg: #f4f6fa;
+  --bg-soft: #e6ecf5;
+  --panel: #ffffff;
+  --panel-2: #f8f9fc;
+  --border: #dfe6ef;
+  --text: #1f2d3d;
+  --text-2: #6b7a90;
   --gold: #d4a643;
-  --gold-soft: #e8c874;
+  --gold-soft: #a97c2a;
   --profit: #ff4d4f;
   --loss: #00b578;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --table-header-bg: rgba(0, 0, 0, 0.035);
+  --chart-axis: #c4cfdd;
+  --chart-text: #5a6b85;
+  --chart-split: rgba(90, 107, 133, 0.18);
 }
 
 /* 科技风主题 */
@@ -25,6 +31,11 @@ html.theme-tech {
   --gold-soft: #7dd3fc;
   --profit: #f87171;
   --loss: #34d399;
+  --hover-bg: rgba(255, 255, 255, 0.04);
+  --table-header-bg: rgba(255, 255, 255, 0.035);
+  --chart-axis: #2a3a58;
+  --chart-text: #8b99b0;
+  --chart-split: rgba(42, 58, 88, 0.45);
 }
 
 /* 奢华风主题 */
@@ -40,6 +51,11 @@ html.theme-luxury {
   --gold-soft: #f5e6b0;
   --profit: #ff6b6b;
   --loss: #4ade80;
+  --hover-bg: rgba(255, 255, 255, 0.04);
+  --table-header-bg: rgba(255, 255, 255, 0.035);
+  --chart-axis: #3a2e1d;
+  --chart-text: #c2b08d;
+  --chart-split: rgba(90, 69, 40, 0.5);
 }
 
 * {
@@ -91,7 +107,7 @@ body {
 .el-table {
   --el-table-bg-color: transparent;
   --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: rgba(255, 255, 255, 0.03);
+  --el-table-header-bg-color: var(--table-header-bg);
   --el-table-border-color: var(--border);
   --el-table-row-hover-bg-color: rgba(212, 166, 67, 0.06);
 }

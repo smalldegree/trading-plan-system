@@ -81,7 +81,7 @@ async function onLogout() {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #0b1322 0%, #0a0f1c 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
   border-right: 1px solid var(--border);
   transition: width 0.2s ease;
 }
@@ -152,7 +152,7 @@ async function onLogout() {
 }
 .nav-item:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--hover-bg);
 }
 .nav-item.active {
   color: var(--gold-soft);
@@ -208,7 +208,7 @@ async function onLogout() {
 }
 .collapse-toggle:hover {
   color: var(--gold-soft);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--hover-bg);
 }
 
 .main {
