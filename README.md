@@ -115,7 +115,7 @@ npm start          # 使用 node 直接启动
 
 ## 部署（Ubuntu 24.04 + Nginx + MySQL）
 
-以下以 Ubuntu 24.04 为例，将系统部署到生产环境。
+以下以 Ubuntu 24.04 为例，将系统部署到生产环境。项目同时提供了一键部署脚本，推荐优先使用（见下文「一键部署脚本」）。
 
 ### 1. 安装依赖
 
@@ -220,6 +220,33 @@ sudo nginx -t && sudo systemctl reload nginx
 git pull
 cd server && npm install && pm2 restart trading-plan-server
 cd web && npm install && npm run build
+```
+
+### 一键部署脚本
+
+项目内置 `deploy/deploy.sh`，一条命令完成：清理旧环境 → 创建数据库 → 安装依赖 → 迁移 → 构建前端 → 安装 systemd 服务与 Nginx 配置：
+
+```bash
+sudo bash deploy/deploy.sh
+```
+
+可用环境变量覆盖默认值：
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `DOMAIN` | `your-domain.com` | 访问域名 |
+| `PORT` | `3000` | 后端端口 |
+| `DB_NAME` | `trading_plan` | 数据库名 |
+| `DB_USER` | `trading` | 数据库用户 |
+| `DB_PASSWORD` | `please-change-me` | 数据库密码 |
+| `DB_ROOT_USER` | `root` | MySQL root 用户名（建库/建用户用） |
+| `DB_ROOT_PASSWORD` | 空 | MySQL root 密码 |
+| `JWT_SECRET` | 随机生成 | JWT 密钥 |
+
+默认不清除数据库数据；设置 `CLEAN_DB=1` 时重建数据库。示例：
+
+```bash
+sudo DB_ROOT_PASSWORD='你的root密码' DB_PASSWORD='业务密码' DOMAIN='example.com' bash deploy/deploy.sh
 ```
 
 ## 配置（后端环境变量）
