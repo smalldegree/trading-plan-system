@@ -5,12 +5,14 @@
 # 如需连数据库一起重建：CLEAN_DB=1 sudo bash deploy/deploy.sh
 #
 # 可用环境变量覆盖默认值：
-#   DOMAIN       访问域名（默认 your-domain.com）
-#   PORT         后端端口（默认 3000）
-#   DB_NAME      数据库名（默认 trading_plan）
-#   DB_USER      数据库用户（默认 trading）
-#   DB_PASSWORD  数据库密码（默认 please-change-me）
-#   JWT_SECRET   JWT 密钥（默认随机生成）
+#   DOMAIN          访问域名（默认 your-domain.com）
+#   PORT            后端端口（默认 3000）
+#   DB_NAME         数据库名（默认 trading_plan）
+#   DB_USER         数据库用户（默认 trading）
+#   DB_PASSWORD     数据库密码（默认 please-change-me）
+#   DB_ROOT_USER    MySQL root 用户名（默认 root，用于建库/建用户）
+#   DB_ROOT_PASSWORD MySQL root 密码（默认空）
+#   JWT_SECRET      JWT 密钥（默认随机生成）
 
 set -euo pipefail
 
@@ -24,6 +26,8 @@ PORT="${PORT:-3000}"
 DB_NAME="${DB_NAME:-trading_plan}"
 DB_USER="${DB_USER:-trading}"
 DB_PASSWORD="${DB_PASSWORD:-please-change-me}"
+DB_ROOT_USER="${DB_ROOT_USER:-root}"
+DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-}"
 JWT_SECRET="${JWT_SECRET:-$(openssl rand -hex 32 2>/dev/null || tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)}"
 
 # 0. 清理旧环境（全新部署，不留上次残留）
@@ -34,14 +38,18 @@ rm -rf "$APP_ROOT/web/dist"
 
 # 1. 准备 MySQL 数据库（默认保留已有数据，CLEAN_DB=1 时重建）
 echo "==> 1. 准备 MySQL 数据库"
+MYSQL_ARGS=(-u "$DB_ROOT_USER")
+if [ -n "$DB_ROOT_PASSWORD" ]; then
+    MYSQL_ARGS+=("-p$DB_ROOT_PASSWORD")
+fi
 if [ "${CLEAN_DB:-0}" = "1" ]; then
     echo "==> 重建数据库（CLEAN_DB=1）"
-    mysql -e "DROP DATABASE IF EXISTS ${DB_NAME};"
+    mysql "${MYSQL_ARGS[@]}" -e "DROP DATABASE IF EXISTS ${DB_NAME};"
 fi
-mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
+mysql "${MYSQL_ARGS[@]}" -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql "${MYSQL_ARGS[@]}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+mysql "${MYSQL_ARGS[@]}" -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';"
+mysql "${MYSQL_ARGS[@]}" -e "FLUSH PRIVILEGES;"
 
 # 2. 安装后端依赖并写入环境变量
 echo "==> 2. 安装后端依赖"
