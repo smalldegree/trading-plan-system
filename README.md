@@ -42,6 +42,11 @@
 
 ```
 trading-plan-system/
+├── deploy/                     # 部署配置
+│   ├── deploy.sh               # 一键部署脚本
+│   ├── trading-plan.service    # systemd 服务
+│   └── nginx/
+│       └── trading-plan.conf   # Nginx 站点配置
 ├── web/                        # 前端
 │   ├── src/
 │   │   ├── api/                # Axios 封装
@@ -64,6 +69,8 @@ trading-plan-system/
     │   ├── routes/             # auth / trades 路由
     │   └── utils/csv.js        # CSV 解析与生成
     ├── migrations/             # 数据库迁移文件
+    ├── scripts/                # 数据库迁移脚本
+    │   └── migrate-sqlite-to-mysql.js  # SQLite → MySQL 数据迁移
     ├── knexfile.js             # Knex CLI 配置
     └── package.json
 ```
