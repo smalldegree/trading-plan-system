@@ -259,7 +259,11 @@ sudo DB_ROOT_PASSWORD='你的root密码' DB_PASSWORD='业务密码' DOMAIN='exam
 | `PORT` | `3000` | 后端端口 |
 | `DB_CLIENT` | `better-sqlite3` | 数据库客户端：`better-sqlite3` / `sqlite3` / `mysql` / `mysql2` / `pg` |
 | `DB_FILENAME` | `server/data/trading.sqlite` | SQLite 数据库文件路径 |
-| `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | — | MySQL / PostgreSQL 连接信息 |
+| `DB_HOST` | `127.0.0.1` | MySQL / PostgreSQL 主机 |
+| `DB_PORT` | `3306` | MySQL / PostgreSQL 端口 |
+| `DB_USER` | `root` | MySQL / PostgreSQL 用户名 |
+| `DB_PASSWORD` | 空 | MySQL / PostgreSQL 密码 |
+| `DB_NAME` | `trading_plan` | MySQL / PostgreSQL 数据库名 |
 | `JWT_SECRET` | `dev-secret-change-me` | JWT 密钥（生产环境务必修改） |
 | `JWT_EXPIRES_IN` | `7d` | Token 有效期 |
 
