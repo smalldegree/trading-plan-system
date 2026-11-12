@@ -10,6 +10,7 @@
 #   DB_NAME         数据库名（默认 trading_plan）
 #   DB_USER         数据库用户（默认 trading）
 #   DB_PASSWORD     数据库密码（默认 please-change-me）
+#   DB_PORT         数据库端口（默认 3306）
 #   DB_ROOT_USER    MySQL root 用户名（默认 root，用于建库/建用户）
 #   DB_ROOT_PASSWORD MySQL root 密码（默认空）
 #   JWT_SECRET      JWT 密钥（默认随机生成）
@@ -26,6 +27,7 @@ PORT="${PORT:-3000}"
 DB_NAME="${DB_NAME:-trading_plan}"
 DB_USER="${DB_USER:-trading}"
 DB_PASSWORD="${DB_PASSWORD:-please-change-me}"
+DB_PORT="${DB_PORT:-3306}"
 DB_ROOT_USER="${DB_ROOT_USER:-root}"
 DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-}"
 JWT_SECRET="${JWT_SECRET:-$(openssl rand -hex 32 2>/dev/null || tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)}"
@@ -38,7 +40,7 @@ rm -rf "$APP_ROOT/web/dist"
 
 # 1. 准备 MySQL 数据库（默认保留已有数据，CLEAN_DB=1 时重建）
 echo "==> 1. 准备 MySQL 数据库"
-MYSQL_ARGS=(-u "$DB_ROOT_USER")
+MYSQL_ARGS=(-u "$DB_ROOT_USER" -P "$DB_PORT")
 if [ -n "$DB_ROOT_PASSWORD" ]; then
     MYSQL_ARGS+=("-p$DB_ROOT_PASSWORD")
 fi
@@ -60,7 +62,7 @@ npm install mysql2 --no-save
 cat > "$APP_ROOT/server/.env" <<EOF
 DB_CLIENT=mysql2
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=${DB_PORT}
 DB_USER=${DB_USER}
 DB_PASSWORD=${DB_PASSWORD}
 DB_NAME=${DB_NAME}

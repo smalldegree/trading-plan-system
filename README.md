@@ -239,6 +239,7 @@ sudo bash deploy/deploy.sh
 | `DB_NAME` | `trading_plan` | 数据库名 |
 | `DB_USER` | `trading` | 数据库用户 |
 | `DB_PASSWORD` | `please-change-me` | 数据库密码 |
+| `DB_PORT` | `3306` | 数据库端口 |
 | `DB_ROOT_USER` | `root` | MySQL root 用户名（建库/建用户用） |
 | `DB_ROOT_PASSWORD` | 空 | MySQL root 密码 |
 | `JWT_SECRET` | 随机生成 | JWT 密钥 |
