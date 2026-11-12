@@ -247,6 +247,73 @@ npm run migrate:rollback # 回滚最近一次迁移
 - **users**：`id`、`username`、`password_hash`、`created_at`、`updated_at`
 - **trades**：`id`、`user_id`、`trade_date`、`stock_name`、`stock_code`、`point`、`strong_reversal`、`position_preferred`、`pullback_sufficient`、`score`、`price`、`shares`、`buy_amount`、`sell_date`、`sell_price`、`sell_shares`、`sell_amount`、`trend`、`reason`、`return_rate`、`pnl`、`summary`、`status`、`remark`、`created_at`、`updated_at`
 
+## 切换数据库（SQLite ↔ MySQL，数据不丢失）
+
+系统默认使用 SQLite，可通过 `DB_CLIENT` 切换到 MySQL。以下以 SQLite → MySQL 为例，说明如何在不丢失数据的前提下完成切换。
+
+### 1. 备份现有数据（强烈建议）
+
+```bash
+cp server/data/trading.sqlite server/data/trading.sqlite.bak
+```
+
+### 2. 创建 MySQL 数据库与用户
+
+```sql
+CREATE DATABASE trading_plan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'trading'@'localhost' IDENTIFIED BY '你的密码';
+GRANT ALL PRIVILEGES ON trading_plan.* TO 'trading'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 3. 安装 MySQL 驱动并配置环境变量
+
+```bash
+cd server
+npm install mysql2
+```
+
+编辑 `server/.env`：
+
+```
+DB_CLIENT=mysql2
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=trading
+DB_PASSWORD=你的密码
+DB_NAME=trading_plan
+```
+
+### 4. 在 MySQL 上执行建表迁移
+
+```bash
+cd server
+npm run migrate
+```
+
+### 5. 迁移数据（users + trades 全量迁移）
+
+```bash
+cd server
+node scripts/migrate-sqlite-to-mysql.js
+```
+
+脚本会读取 SQLite 中的 `users`、`trades` 两张表并写入 MySQL，id 与时间戳均原样保留。
+
+### 6. 验证
+
+```bash
+npm run dev
+```
+
+启动后端，登录账号并确认交易记录完整。
+
+### 回滚（如需切回 SQLite）
+
+将 `server/.env` 中的 `DB_CLIENT` 改回 `better-sqlite3`（或删除该行），重启后端即可回到原 SQLite 数据。
+
+> 提示：切换数据库只改变后端读取的数据源，SQLite 文件本身不会被删除，因此随时可以切回、数据不会丢失。
+
 ## API 接口
 
 ### 认证（`/api/auth`）

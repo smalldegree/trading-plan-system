@@ -1,4 +1,5 @@
 const path = require('path');
+require('dotenv').config();
 
 const migrations = {
   directory: path.join(__dirname, 'migrations'),
